@@ -1,101 +1,133 @@
-import Image from "next/image";
+"use client"
 
-export default function Home() {
+import { useState } from 'react'
+import { Button } from "@/components/ui/button"
+import { Progress } from "@/components/ui/progress"
+import { Upload, Download, FileAudio, Cpu, FileDown } from 'lucide-react'
+
+export default function LandingPage() {
+  const [uploadedFile, setUploadedFile] = useState<File | null>(null)
+  const [isProcessing, setIsProcessing] = useState(false)
+  const [progress, setProgress] = useState(0)
+
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0] || null
+    setUploadedFile(file)
+    setProgress(0)
+    setIsProcessing(false)
+    
+    if (file) {
+      setIsProcessing(true)
+      // Simulating processing time
+      const interval = setInterval(() => {
+        setProgress((prevProgress) => {
+          if (prevProgress >= 100) {
+            clearInterval(interval)
+            setIsProcessing(false)
+            return 100
+          }
+          return prevProgress + 10
+        })
+      }, 500)
+    }
+  }
+
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="https://nextjs.org/icons/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
-
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="https://nextjs.org/icons/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
+    <div className="min-h-screen bg-[#F0F0FF] text-[#2C0735] flex flex-col">
+      <style jsx global>{`
+        @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@400;700&family=Source+Sans+Pro:wght@400;600&display=swap');
+      `}</style>
+      <div className="container mx-auto px-4 py-16 flex-grow">
+        <h1 className="text-5xl font-bold mb-6 font-oswald text-center">Bleep It Out</h1>
+        <p className="text-xl mb-12 font-sans-pro text-center max-w-2xl mx-auto">
+          Instantly clean up your audio files without uploading them to any server. 
+          Perfect for podcast editors, content creators, or anyone needing family-friendly audio.
+        </p>
+        
+        <div className="bg-white rounded-lg shadow-xl p-8 max-w-2xl mx-auto mb-16">
+          <div className="flex flex-col items-center space-y-6">
+            <Button 
+              onClick={() => document.getElementById('fileInput')?.click()} 
+              className="bg-[#613DC1] hover:bg-[#4E148C] text-white font-bold py-4 px-8 rounded-md text-lg flex items-center space-x-2"
+            >
+              <Upload className="w-6 h-6" />
+              <span>Bleep It Out!</span>
+            </Button>
+            <input
+              id="fileInput"
+              type="file"
+              accept="audio/mp3,audio/wav,audio/m4a"
+              className="hidden"
+              onChange={handleFileUpload}
             />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
+            {uploadedFile && (
+              <p className="text-sm text-green-600 font-sans-pro">
+                File uploaded: {uploadedFile.name}
+              </p>
+            )}
+            <p className="text-sm text-gray-600 font-sans-pro">
+              Supported formats: MP3, WAV, M4A (up to 50MB)
+            </p>
+            
+            {isProcessing && (
+              <div className="w-full space-y-2">
+                <Progress value={progress} className="w-full" />
+                <p className="text-sm text-center font-sans-pro">
+                  Processing... {progress}%
+                </p>
+              </div>
+            )}
+            
+            {progress === 100 && (
+              <Button className="bg-[#613DC1] hover:bg-[#4E148C] text-white font-bold py-4 px-8 rounded-md text-lg flex items-center space-x-2">
+                <Download className="w-6 h-6" />
+                <span>Download Censored Audio</span>
+              </Button>
+            )}
+          </div>
+        </div>
+        
+        <div className="grid md:grid-cols-3 gap-8">
+          <StepCard 
+            icon={<FileAudio className="w-12 h-12 text-[#613DC1]" />}
+            title="1. Upload"
+            description="Upload your audio file and optionally provide a custom word list for censoring. We'll use our default profanity list if you don't provide one."
+          />
+          <StepCard 
+            icon={<Cpu className="w-12 h-12 text-[#613DC1]" />}
+            title="2. Process"
+            description="We process your file entirely in your browser. No information about your audio or its contents is sent off your machine."
+          />
+          <StepCard 
+            icon={<FileDown className="w-12 h-12 text-[#613DC1]" />}
+            title="3. Download"
+            description="Get your correctly-censored .wav file ready for immediate download and use."
+          />
+        </div>
+      </div>
+      <footer className="bg-[#2C0735] text-white py-4">
+        <div className="container mx-auto px-4 text-center font-sans-pro">
+          Created with ❤️ by{' '}
+          <a 
+            href="https://floorboardai.com" 
+            target="_blank" 
             rel="noopener noreferrer"
+            className="underline hover:text-[#97DFFC] transition-colors"
           >
-            Read our docs
+            FloorboardAI
           </a>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
       </footer>
     </div>
-  );
+  )
+}
+
+function StepCard({ icon, title, description }: { icon: React.ReactNode; title: string; description: string }) {
+  return (
+    <div className="bg-white rounded-lg shadow-md p-6 flex flex-col items-center text-center">
+      {icon}
+      <h3 className="text-xl font-bold mt-4 mb-2 font-oswald">{title}</h3>
+      <p className="font-sans-pro">{description}</p>
+    </div>
+  )
 }

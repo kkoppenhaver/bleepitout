@@ -1,17 +1,19 @@
 import type { Metadata } from "next";
-import localFont from "next/font/local";
 import "./globals.css";
 
-const geistSans = localFont({
-  src: "./fonts/GeistVF.woff",
-  variable: "--font-geist-sans",
-  weight: "100 900",
-});
-const geistMono = localFont({
-  src: "./fonts/GeistMonoVF.woff",
-  variable: "--font-geist-mono",
-  weight: "100 900",
-});
+import { Source_Sans_3, Oswald } from 'next/font/google'
+
+const sourceSansPro = Source_Sans_3({
+  weight: ['400', '600'],
+  subsets: ['latin'],
+  variable: '--font-source-sans-pro',
+})
+
+const oswald = Oswald({
+  weight: ['400', '700'],
+  subsets: ['latin'],
+  variable: '--font-oswald',
+})
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -26,7 +28,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${sourceSansPro.variable} ${oswald.variable}`}
       >
         {children}
       </body>
